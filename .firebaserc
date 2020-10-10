@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "headlogger-ba321"
+  },
+  "targets": {
+    "headlogger-ba321": {
+      "hosting": {
+        "headlogger": [
+          "headlogger"
+        ]
+      }
+    }
+  }
+}
