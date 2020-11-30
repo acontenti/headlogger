@@ -4,7 +4,15 @@
 			<v-app-bar-nav-icon @click.stop="drawer = !drawer"/>
 			<v-toolbar-title>HeadLogger</v-toolbar-title>
 			<v-spacer/>
-			<v-btn outlined @click="logout">Logout</v-btn>
+			<span v-if="user" class="mx-md-4 mx-2 subtitle-2">{{ user.email }}</span>
+			<v-tooltip bottom>
+				<template v-slot:activator="{ on, attrs }">
+					<v-btn v-bind="attrs" v-on="on" icon @click="logout">
+						<v-icon>mdi-logout</v-icon>
+					</v-btn>
+				</template>
+				<span>Logout</span>
+			</v-tooltip>
 		</v-app-bar>
 		<v-navigation-drawer v-model="drawer" app clipped>
 			<v-list>
@@ -19,17 +27,19 @@
 			</v-list>
 		</v-navigation-drawer>
 		<v-main>
-			<v-container>
+			<v-container class="d-flex flex-fill flex-column">
 				<nuxt/>
 			</v-container>
 		</v-main>
 		<v-footer app>
-			<span>&copy; {{ new Date().getFullYear() }}, Alessandro Contenti</span>
+			<span>Copyright &copy; {{ new Date().getFullYear() }}, Alessandro Contenti</span>
 		</v-footer>
 	</v-app>
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 export default {
 	middleware: "authenticated",
 	data() {
@@ -53,6 +63,9 @@ export default {
 				}
 			]
 		};
+	},
+	computed: {
+		...mapState(["user"])
 	},
 	methods: {
 		async logout() {

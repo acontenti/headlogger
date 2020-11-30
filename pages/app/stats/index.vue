@@ -1,38 +1,12 @@
 <template>
-	<v-row>
-		<v-col cols="12">
-			<v-card>
-				<v-card-title>Cause</v-card-title>
-				<v-card-text>
-					<v-sparkline :gradient="colors"
-								 :labels="causesLabels"
-								 :value="causesValues"
-								 auto-line-width gradient-direction="bottom" show-labels type="bar">
-					</v-sparkline>
-				</v-card-text>
-			</v-card>
-			<v-card>
-				<v-card-title>Trend</v-card-title>
-				<v-card-text>
-					<v-sparkline :gradient="colors"
-								 :labels="log.map(item=>formatDate(item.data.date))"
-								 :value="log.map(item=>item.data.intensity)"
-								 color="white"
-								 gradient-direction="bottom"
-								 line-width="2"
-								 padding="25"
-								 show-labels smooth>
-					</v-sparkline>
-				</v-card-text>
-			</v-card>
-		</v-col>
-		<v-col cols="12">
-
-		</v-col>
-		<v-col cols="12">
-
-		</v-col>
-	</v-row>
+	<v-card class="overflow-hidden">
+		<v-card-title>Cause</v-card-title>
+		<ve-pie :data="causesChart.data" :extend="causesChart.extend" :settings="causesChart.settings"
+				theme-name="dark" width="100%"/>
+		<v-card-title>Trend</v-card-title>
+		<ve-line :data="logChart.data" :extend="logChart.extend" :settings="logChart.settings"
+				 :visual-map="logChart.visualMap" theme-name="dark" width="100%"/>
+	</v-card>
 </template>
 
 <script>
@@ -43,7 +17,48 @@ export default {
 	data() {
 		return {
 			log: [],
-			causes: []
+			causes: [],
+			causesChart: {
+				data: {
+					columns: ["cause", "n"],
+					rows: []
+				},
+				settings: {
+					type: "pie",
+					labelMap: {cause: "Causa", n: "n"}
+				},
+				extend: {
+					legend: {
+						type: "scroll"
+					}
+				}
+			},
+			logChart: {
+				data: {
+					columns: ["date", "intensity"],
+					rows: []
+				},
+				settings: {
+					type: "line",
+					labelMap: {date: "Data", intensity: "Intensità"}
+				},
+				extend: {
+					legend: {
+						icon: "roundRect"
+					},
+					color: this.colors
+				},
+				visualMap: [
+					{
+						type: "piecewise",
+						splitNumber: 9,
+						min: 1,
+						max: 10,
+						show: false,
+						color: this.colors
+					}
+				]
+			}
 		};
 	},
 	async fetch() {
@@ -53,16 +68,6 @@ export default {
 			this.loadData(snapshot);
 		} catch (e) {
 			console.error(e);
-		}
-	},
-	computed: {
-		causesLabels() {
-			const entries = this.getCauses();
-			return entries.map(([k, v]) => k + ": " + v);
-		},
-		causesValues() {
-			const entries = this.getCauses();
-			return entries.map(([, v]) => v);
 		}
 	},
 	methods: {
@@ -76,11 +81,13 @@ export default {
 				const cause = value.data.cause;
 				return (!cause || cause.length === 0) ? ["altro"] : cause;
 			}).reduce((acc, cur) => Object.assign(acc, {[cur]: (acc[cur] | 0) + 1}), {});
-		},
-		getCauses() {
 			const entries = Object.entries(this.causes);
 			entries.sort(([, a], [, b]) => b - a);
-			return entries;
+			this.causesChart.data.rows = entries.map(([key, value]) => ({cause: key, n: value}));
+			this.logChart.data.rows = this.log.map(({data}) => ({
+				date: this.formatDateTime(data.date, data.hour),
+				intensity: data.intensity
+			}));
 		}
 	}
 };

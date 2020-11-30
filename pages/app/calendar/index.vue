@@ -1,30 +1,26 @@
 <template>
-	<v-row align="center" justify="center">
-		<v-col cols="12">
-			<v-card>
-				<v-toolbar flat>
-					<v-spacer></v-spacer>
-					<v-btn fab outlined small @click="prev">
-						<v-icon small>
-							mdi-chevron-left
-						</v-icon>
-					</v-btn>
-					<v-toolbar-title v-if="$refs.calendar" class="mx-4">
-						<v-btn outlined text @click="setToday">
-							{{ $refs.calendar.title }}
-						</v-btn>
-					</v-toolbar-title>
-					<v-btn fab outlined small @click="next">
-						<v-icon small>
-							mdi-chevron-right
-						</v-icon>
-					</v-btn>
-					<v-spacer></v-spacer>
-				</v-toolbar>
-				<v-calendar ref="calendar" v-model="focus" :event-color="eventColour" :events="events" locale="it"/>
-			</v-card>
-		</v-col>
-	</v-row>
+	<v-card class="d-flex flex-column flex-fill">
+		<v-toolbar flat>
+			<v-spacer></v-spacer>
+			<v-btn fab outlined small @click="prev">
+				<v-icon small>
+					mdi-chevron-left
+				</v-icon>
+			</v-btn>
+			<v-toolbar-title v-if="$refs.calendar" class="mx-4">
+				<v-btn outlined text @click="setToday">
+					{{ $refs.calendar.title }}
+				</v-btn>
+			</v-toolbar-title>
+			<v-btn fab outlined small @click="next">
+				<v-icon small>
+					mdi-chevron-right
+				</v-icon>
+			</v-btn>
+			<v-spacer></v-spacer>
+		</v-toolbar>
+		<v-calendar ref="calendar" v-model="focus" :event-color="eventColour" :events="events" locale="it"/>
+	</v-card>
 </template>
 
 <script>
@@ -76,3 +72,10 @@ export default {
 	}
 };
 </script>
+
+<style lang="scss">
+.v-main__wrap {
+	display: flex;
+	flex-direction: column;
+}
+</style>

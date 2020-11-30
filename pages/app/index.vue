@@ -1,43 +1,48 @@
 <template>
-	<v-row align="center" justify="center">
-		<v-col cols="12">
-			<v-card>
-				<v-card-title>
-					<span class="subtitle-1">Benvenuto, {{ user.email }}</span>
-				</v-card-title>
-			</v-card>
-		</v-col>
-		<v-col v-if="log.length > 0" cols="12">
-			<v-card>
+	<div>
+		<v-card>
+			<v-card-title class="pb-0">Ultimi eventi</v-card-title>
+			<v-card-text class="pa-0">
 				<v-list>
-					<v-subheader>Ultimi eventi</v-subheader>
-					<v-list-item v-for="item in log" :key="item.id">
-						<v-list-item-avatar :color="intensityColour(item.data.intensity)">
-							<span>{{ item.data.intensity }}</span>
-						</v-list-item-avatar>
-						<v-list-item-content>
-							<v-list-item-title>
-								{{ formatDate(item.data.date) }} -
-								{{ (availableHours.find(value => value.value === item.data.hour) || {}).text }}
-							</v-list-item-title>
-							<v-list-item-subtitle>
-								{{ item.data.type }} - {{ (item.data.cause || []).join(", ") || '?'}}
-							</v-list-item-subtitle>
-						</v-list-item-content>
-						<v-list-item-action>
-							<v-btn icon @click="editItem(item.id)">
-								<v-icon>mdi-pencil</v-icon>
-							</v-btn>
-						</v-list-item-action>
-						<v-list-item-action>
-							<v-btn icon @click="deleteItem(item.id)">
-								<v-icon>mdi-delete</v-icon>
-							</v-btn>
-						</v-list-item-action>
-					</v-list-item>
+					<transition-group name="list" tag="div">
+						<v-list-item v-for="item in log" :key="item.id" ripple @click="viewing = item.data">
+							<v-list-item-avatar :color="intensityColour(item.data.intensity)" left rounded>
+								<span class="font-weight-bold subtitle-1">{{ item.data.intensity }}</span>
+							</v-list-item-avatar>
+							<v-list-item-content>
+								<v-list-item-title>
+									{{ formatDate(item.data.date) }} -
+									{{ (availableHours.find(value => value.value === item.data.hour) || {}).text }}
+								</v-list-item-title>
+								<v-list-item-subtitle>
+									{{ item.data.type }} - {{ (item.data.cause || []).join(", ") || "?" }}
+								</v-list-item-subtitle>
+							</v-list-item-content>
+							<v-list-item-action>
+								<v-btn icon @click.stop="editItem(item.id)">
+									<v-icon>mdi-pencil</v-icon>
+								</v-btn>
+							</v-list-item-action>
+							<v-list-item-action>
+								<v-btn icon @click.stop="deleteItem(item.id)">
+									<v-icon>mdi-delete</v-icon>
+								</v-btn>
+							</v-list-item-action>
+						</v-list-item>
+						<v-list-item v-if="log.length === 0" class="pa-4">
+							<v-list-item-content>
+								<v-list-item-title class="text-center">
+									<v-icon color="#888" x-large>mdi-bookshelf</v-icon>
+								</v-list-item-title>
+								<v-list-item-subtitle class="text-center text-uppercase font-weight-medium">
+									Ancora nessun evento
+								</v-list-item-subtitle>
+							</v-list-item-content>
+						</v-list-item>
+					</transition-group>
 				</v-list>
-			</v-card>
-		</v-col>
+			</v-card-text>
+		</v-card>
 		<v-btn bottom color="primary" fab fixed right @click="newItem">
 			<v-icon>mdi-plus</v-icon>
 		</v-btn>
@@ -75,12 +80,84 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
-	</v-row>
+		<v-dialog :value="!!viewing" max-width="500px" @input="viewing = undefined">
+			<v-card>
+				<v-card-text>
+					<v-list v-if="viewing">
+						<v-list-item>
+							<v-list-item-icon>
+								<v-icon>mdi-calendar</v-icon>
+							</v-list-item-icon>
+							<v-list-item-content>
+								<v-list-item-subtitle>Data</v-list-item-subtitle>
+								<v-list-item-title>{{ formatDate(viewing.date) }}</v-list-item-title>
+							</v-list-item-content>
+						</v-list-item>
+						<v-list-item>
+							<v-list-item-icon>
+								<v-icon>mdi-clock</v-icon>
+							</v-list-item-icon>
+							<v-list-item-content>
+								<v-list-item-subtitle>Orario</v-list-item-subtitle>
+								<v-list-item-title>{{
+										availableHours.find(({value}) => value === viewing.hour).text
+									}}
+								</v-list-item-title>
+							</v-list-item-content>
+						</v-list-item>
+						<v-list-item>
+							<v-list-item-icon>
+								<v-icon>mdi-shape</v-icon>
+							</v-list-item-icon>
+							<v-list-item-content>
+								<v-list-item-subtitle>Tipologia</v-list-item-subtitle>
+								<v-list-item-title>{{ viewing.type }}</v-list-item-title>
+							</v-list-item-content>
+						</v-list-item>
+						<v-list-item>
+							<v-list-item-icon>
+								<v-icon>mdi-lightning-bolt</v-icon>
+							</v-list-item-icon>
+							<v-list-item-content>
+								<v-list-item-subtitle>Cause</v-list-item-subtitle>
+								<v-list-item-title>{{ (viewing.causes || ["altro"]).join(", ") }}</v-list-item-title>
+							</v-list-item-content>
+						</v-list-item>
+						<v-list-item>
+							<v-list-item-icon>
+								<v-icon>mdi-chart-timeline-variant</v-icon>
+							</v-list-item-icon>
+							<v-list-item-content>
+								<v-list-item-subtitle>Intensità</v-list-item-subtitle>
+								<v-list-item-title>
+									<v-slider :value="viewing.intensity" hide-details max="10" min="1" readonly step="1"
+											  tick-size="4" ticks="always"/>
+								</v-list-item-title>
+							</v-list-item-content>
+						</v-list-item>
+						<v-list-item>
+							<v-list-item-icon>
+								<v-icon>mdi-note</v-icon>
+							</v-list-item-icon>
+							<v-list-item-content>
+								<v-list-item-subtitle>Note</v-list-item-subtitle>
+								<v-list-item-title>{{ viewing.notes }}</v-list-item-title>
+							</v-list-item-content>
+						</v-list-item>
+					</v-list>
+				</v-card-text>
+				<v-card-actions class="justify-center">
+					<v-btn @click="viewing = undefined">Chiudi</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+	</div>
 </template>
 
 <script>
 import {mapState} from "vuex";
 import utilMixin from "@/mixins/utilMixin";
+import vcolors from "vuetify/es5/util/colors";
 
 export default {
 	head: {
@@ -92,18 +169,12 @@ export default {
 			logCollection: null,
 			log: [],
 			datePicker: false,
+			viewing: undefined,
 			dialog: false,
 			dialogLoading: false,
 			dialogTitle: "Modifica elemento",
 			currentEditing: null,
 			editing: {},
-			availableTypes: ["Mal di testa", "Altro"],
-			availableHours: [
-				{text: "Notte (0-6)", value: 0},
-				{text: "Mattina (7-12)", value: 1},
-				{text: "Pomeriggio (13-18)", value: 2},
-				{text: "Sera (19-23)", value: 3}
-			],
 			availableCauses: []
 		};
 	},
@@ -162,9 +233,26 @@ export default {
 			this.editing = Object.assign({}, (this.log.find(value => value.id === id) || {}).data);
 			this.dialog = true;
 		},
-		deleteItem(id) {
+		async deleteItem(id) {
+			if (!await this.$dialog.warning({
+				type: "error",
+				text: "Sicuro di voler eliminare questo elemeto?",
+				title: "Attenzione",
+				persistent: true,
+				showClose: false,
+				actions: {
+					false: {
+						text: "Annulla"
+					},
+					true: {
+						text: "Elimina", color: vcolors.red.base
+					}
+				}
+			})) {
+				return;
+			}
 			try {
-				this.$fireStore.collection("users").doc(this.user.uid)
+				await this.$fireStore.collection("users").doc(this.user.uid)
 					.collection("log").doc(id)
 					.delete();
 			} catch (e) {
@@ -195,3 +283,13 @@ export default {
 	}
 };
 </script>
+<style lang="scss">
+.list-enter-active, .list-leave-active {
+	transition: all 1s;
+}
+
+.list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */
+{
+	opacity: 0;
+}
+</style>

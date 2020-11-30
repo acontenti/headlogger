@@ -9,6 +9,13 @@ export default Vue.mixin({
 				vcolors.yellow.darken4,
 				vcolors.deepOrange.darken4,
 				vcolors.red.darken4
+			],
+			availableTypes: ["Mal di testa", "Altro"],
+			availableHours: [
+				{text: "Notte (1-6)", value: 0, hour: 3},
+				{text: "Mattina (7-12)", value: 1, hour: 9},
+				{text: "Pomeriggio (13-18)", value: 2, hour: 15},
+				{text: "Sera (19-24)", value: 3, hour: 21}
 			]
 		};
 	},
@@ -21,6 +28,16 @@ export default Vue.mixin({
 				date = new Date(date);
 			}
 			return date.toLocaleDateString("it-IT");
+		},
+		formatDateTime(date, hour) {
+			if (!date) {
+				return "";
+			}
+			if (!(date instanceof Date)) {
+				date = new Date(date);
+			}
+			const hourText = this.availableHours.find(({value}) => value === hour).text;
+			return date.toLocaleDateString("it-IT") + " " + hourText;
 		},
 		intensityColour(intensity) {
 			if (intensity <= 3) {

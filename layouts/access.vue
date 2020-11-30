@@ -1,6 +1,6 @@
 <template>
 	<v-app dark>
-		<v-container class="text-xs-center">
+		<v-container class="d-flex fill-height justify-center align-center">
 			<nuxt/>
 		</v-container>
 	</v-app>
@@ -8,6 +8,7 @@
 
 <script>
 export default {
+	name: "access",
 	layout: "empty"
 };
 </script>

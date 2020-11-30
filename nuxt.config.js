@@ -27,7 +27,9 @@ export default {
 	css: [],
 
 	// Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-	plugins: [],
+	plugins: [
+		{src: "~/plugins/v-charts.js", mode: "client"}
+	],
 
 	// Auto import components (https://go.nuxtjs.dev/config-components)
 	components: true,
@@ -46,7 +48,8 @@ export default {
 		"@nuxtjs/axios",
 		// https://go.nuxtjs.dev/pwa
 		"@nuxtjs/pwa",
-		"@nuxtjs/firebase"
+		"@nuxtjs/firebase",
+		"vuetify-dialog/nuxt"
 	],
 
 	// Axios module configuration (https://go.nuxtjs.dev/config-axios)
